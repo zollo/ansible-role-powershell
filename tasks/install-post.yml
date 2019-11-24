@@ -1,0 +1,35 @@
+---
+- name: Post Installation Tasks - Linux
+  block:
+
+  - name: Install Modules
+    shell: >
+      if(Get-Module -ListAvailable -Name {{ item }}) {
+        Install-Module -Name {{ item }} -Scope {{ powershell_modules_scope }} -Force
+      }
+    args:
+      executable: /usr/bin/pwsh
+    loop: "{{ powershell_modules }}"
+  when: ansible_os_family != 'Windows'
+
+- name: Post Installation Tasks - Windows
+  block:
+  - name: Find PowerShell
+    win_find:
+      paths:
+      - C:\Program Files\
+      - C:\Program Files (x86)\
+      file_type: file
+      recurse: true
+      patterns: pwsh.exe
+    register: powershell_binary
+
+  - name: Install Modules
+    win_shell: >
+      if(Get-Module -ListAvailable -Name {{ item }}) {
+        Install-Module -Name {{ item }} -Scope {{ powershell_modules_scope }} -Force
+      }
+    args:
+      executable: "{{ powershell_binary.files[0].path }}"
+    loop: "{{ powershell_modules }}"
+  when: ansible_os_family == 'Windows'

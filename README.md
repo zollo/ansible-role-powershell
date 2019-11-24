@@ -1,7 +1,7 @@
-Ansible Role: PowerShell Core
+Ansible Role: PowerShell
 =========
 
-Manages PowerShell Core on Windows or Linux. PowerShell is a task-based command-line shell and scripting language built on .NET. PowerShell helps system administrators and power-users rapidly automate tasks that manage operating systems (Linux, macOS, and Windows) and processes.
+Manages PowerShell 6.x/7.x on Windows or Linux. PowerShell is a task-based command-line shell and scripting language built on .NET. PowerShell helps system administrators and power-users rapidly automate tasks that manage operating systems (Linux, macOS, and Windows) and processes.
 
 Requirements
 ------------
@@ -27,25 +27,29 @@ The state of PowerShell Core, present (default) will install the specified versi
 
 The version of PowerShell Core to install (example `6.2.3`), `latest` will find the newest release.
 
+    powershell_modules: []
+
+List containing PowerShell modules to install from the PowerShell Gallery.
+
     powershell_debian_package_name: powershell
 
 The package name for Debian based installations, `powershell-preview` will install a prerelease version.
 
     powershell_redhat_package_name: powershell
 
-The package name for Debian based installations, `powershell-preview` will install a prerelease version.
+The package name for Red Hat based installations, `powershell-preview` will install a prerelease version.
 
     powershell_windows_enable_context_menu: false
 
-This property controls the option for adding the Open PowerShell item to the context menu in Windows Explorer.
+Windows Only - This property controls the option for adding the Open PowerShell item to the context menu in Windows Explorer.
 
     powershell_windows_enable_psremoting: false
 
-This property controls the option for enabling PowerShell remoting during installation.
+Windows Only - This property controls the option for enabling PowerShell remoting during installation.
 
     powershell_windows_enable_register_manifest: false
 
-This property controls the option for registering the Windows Event Logging manifest.
+Windows Only - This property controls the option for registering the Windows Event Logging manifest.
 
 Dependencies
 ------------
@@ -55,9 +59,10 @@ None
 Example Playbook
 ----------------
 
-    - hosts: win_servers
+    - name: Install PowerShell 6.2.3
+      hosts: core_infra
       vars:
-        wac_state: present
+        powershell_version: '6.2.3'
       roles:
          - joezollo.powershell
 

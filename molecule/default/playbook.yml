@@ -1,0 +1,13 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  roles:
+    - role: joezollo.powershell
+
+  post_tasks:
+    - name: Ensure we can use PowerShell
+      shell: Get-Process
+      args:
+        executable: /usr/bin/pwsh

@@ -1,0 +1,24 @@
+---
+# vars file for ansible-role-powershell-core
+
+powershell_base_download: https://github.com/PowerShell/PowerShell/releases/download/v{{ powershell_core_version }}/
+
+powershell_ubuntu1604: powershell-preview_{{ powershell_core_version }}.ubuntu.16.04_amd64.deb
+powershell_ubuntu1804: powershell-preview_{{ powershell_core_version }}.ubuntu.18.04_amd64.deb
+powershell_win_x64: PowerShell-{{ powershell_core_version }}-win-x64.msi
+powershell_win_x86: PowerShell-{{ powershell_core_version }}-win-x86.msi
+powershell_rhel7: powershell-preview-{{ powershell_core_version }}.rhel.7.x86_64.rpm
+
+releases:
+  - 7.0.0-preview.5-1
+  - 7.0.0-preview.5
+  - 7.0.0-preview.4
+  - 7.0.0-preview.3
+  - 7.0.0-preview.2
+  - 7.0.0-preview.1
+  - 6.2.3
+  - 6.2.2
+  - 6.2.1
+  - 6.2.0
+  - 6.1.6
+  - 6.1.5

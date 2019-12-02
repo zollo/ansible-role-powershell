@@ -4,14 +4,28 @@ python:
   - "2.7"
   - "3.6"
   - "3.7"
-  - "3.8"
-  - "3.8-dev"
-  - "nightly"
 
 os:
   - linux
 
-sudo: false
+sudo: required
+
+services:
+  - docker
+
+env:
+  - distribution: centos
+    version: 7
+  - distribution: ubuntu
+    version: xenial
+  - distribution: ubuntu
+    version: bionic
+  - distribution: debian
+    version: buster
+  - distribution: debian
+    version: stretch
+  - distribution: debian
+    version: jessie
 
 addons:
   apt:

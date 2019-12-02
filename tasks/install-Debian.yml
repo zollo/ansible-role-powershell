@@ -2,34 +2,40 @@
 - name: Ubuntu
   block:
 
-  - name: Install PowerShell
+  - name: Debian - Install PowerShell
     block:
     - name: Ubuntu - Download & Install GPG Key
       apt:
         deb: https://packages.microsoft.com/config/ubuntu/{{ ansible_distribution_major_version }}.04/packages-microsoft-prod.deb
         state: present 
 
-    - name: Ubuntu - Download & Install PowerShell
+    - name: Debian - Download & Install PowerShell
       apt:
         name: "{{ (powershell_version == 'latest') | ternary(powershell_debian_package_name, (powershell_debian_package_name + '=' + powershell_version)) }}"
         autoclean: true
         state: present
         update_cache: true
 
-    - name: Post Installation Tasks
-      include_tasks: install-post.yml
+    - name: Debian - Install Modules
+      shell: >
+        if(-not (Get-Module -ListAvailable -Name {{ item }})) {
+          Install-Module -Name {{ item }} -Scope {{ powershell_redhat_modules_scope }} -Force
+        }
+      args:
+        executable: /usr/bin/pwsh
+      loop: "{{ powershell_modules }}"
 
     when: powershell_state == 'present'
 
-  - name: Remove PowerShell
+  - name: Debian - Remove PowerShell
     block:
-    - name: Ubuntu - Download & Install GPG Key
+    - name: Debian - Download & Install GPG Key
       apt:
         deb: https://packages.microsoft.com/config/ubuntu/{{ ansible_distribution_major_version }}.04/packages-microsoft-prod.deb
         state: absent 
       when: ansible_distribution == "Ubuntu"
 
-    - name: Ubuntu - Download & Install PowerShell
+    - name: Debian - Download & Install PowerShell
       apt:
         name: "{{ powershell_debian_package_name }}"
         autoclean: true

@@ -1,26 +1,26 @@
 ---
-- name: Install PowerShell
+- name: Windows - Install PowerShell
   block:
 
-  - name: Search for Latest Artifact
+  - name: Windows - Search for Latest Artifact
     block:
 
-    - name: Get Latest PowerShell Release
+    - name: Windows - Get Latest PowerShell Release
       uri:
         url: https://api.github.com/repos/powershell/powershell/releases/latest
         return_content: true
       register: latest_release
       delegate_to: localhost
 
-    - name: Build Regex Query
+    - name: Windows - Build Regex Query
       set_fact:
         powershell_artifact_search: "({{ powershell_windows_artifact_id + '-' + powershell_windows_artifact_arch + powershell_windows_artifact_ext }})+$"
 
-    - name: Debug - Print Regex Query
+    - name: Windows - Debug - Print Regex Query
       debug:
         msg: "Query for {{ powershell_artifact_search }}"
 
-    - name: Search for the Artifact
+    - name: Windows - Search for the Artifact
       set_fact:
         powershell_artifact_url: "{{ item.browser_download_url }}"
       loop: "{{ latest_release.json.assets }}"
@@ -28,25 +28,25 @@
 
     when: powershell_version == 'latest'
 
-  - name: Search for Specific Artifact
+  - name: Windows - Search for Specific Artifact
     block:
 
-    - name: Query for List of PowerShell Releases
+    - name: Windows - Query for List of PowerShell Releases
       uri:
         url: https://api.github.com/repos/powershell/powershell/releases
         return_content: true
       register: releases
       delegate_to: localhost
 
-    - name: Build Regex Query
+    - name: Windows - Build Regex Query
       set_fact:
         powershell_artifact_search: "({{ powershell_artifact_windows_id + '-' + powershell_artifact_windows_arch + powershell_artifact_windows_ext }})+$"
 
-    - name: Debug - Print Regex Query
+    - name: Windows - Debug - Print Regex Query
       debug:
         msg: "Query for {{ powershell_artifact_search }}"
 
-    - name: Search for the Artifact
+    - name: Windows - Search for the Artifact
       set_fact:
         powershell_artifact_url: "{{ item.browser_download_url }}"
       loop: "{{ latest_release.json.assets }}"
@@ -54,16 +54,17 @@
 
     when: powershell_version != 'latest'
 
-  - name: Debug - Print Download URL
+  - name: Windows - Debug - Print Download URL
     debug:
       msg: "Downloading {{ powershell_artifact_url }}"
 
-  - name: Download PowerShell Artifact
+  - name: Windows - Download PowerShell
     win_get_url:
       url: "{{ powershell_artifact_url }}"
       dest: C:\Windows\Temp\ps.msi
+      follow_redirects: all
 
-  - name: Install PowerShell Artifact
+  - name: Windows - Install PowerShell
     win_package:
       state: present
       product_id: pscore
@@ -73,8 +74,12 @@
         - "REGISTER_MANIFEST={{ (powershell_windows_enable_register_manifest == true) | ternary('1','0') }}"
       path: C:\Windows\Temp\ps.msi
 
-  - name: Post Installation Tasks
-    include_tasks: install-post.yml
+  - name: Windows - Install Modules
+    win_command: pwsh -
+    args:
+      chdir: '%PROGRAMFILES%\PowerShell\{{ powershell_version_major }}'
+      stdin: "if(-not (Get-Module -ListAvailable -Name {{ item }})) { Install-Module -Name {{ item }} -Scope {{ powershell_windows_modules_scope }} -Force }"
+    loop: "{{ powershell_modules }}"
 
   when: powershell_state == 'present'
 

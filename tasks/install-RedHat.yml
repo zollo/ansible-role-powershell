@@ -1,28 +1,39 @@
 ---
 - block:
-  - name: Add Microsoft Repository
-    get_url:
-      dest: /etc/yum.repos.d/microsoft.repo
-      url: https://packages.microsoft.com/config/rhel/7/prod.repo
+  - name: Red Hat - Update CA Trust
+    command: update-ca-trust check
+    when: powershell_rhel_update_ca_trust == true
 
-  - name: Install PowerShell
+  - name: Red Hat - Add Microsoft Repository
+    template:
+      src: rhel-microsoft.repo.j2
+      dest: /etc/yum.repos.d/microsoft.repo
+
+  - name: Red Hat - Install PowerShell
     yum:
       update_cache: true
       name: "{{ powershell_redhat_package_name }}"
       state: present
+      validate_certs: false
 
-  - name: Post Installation Tasks
-    include_tasks: install-post.yml
+  - name: Red Hat - Install Modules
+    shell: >
+      if(-not (Get-Module -ListAvailable -Name {{ item }})) {
+        Install-Module -Name {{ item }} -Scope {{ powershell_redhat_modules_scope }} -Force
+      }
+    args:
+      executable: /usr/bin/pwsh
+    loop: "{{ powershell_modules }}"
   become: true
   when: powershell_state == 'present'
 
 - block:
-  - name: Remove Microsoft Repository
+  - name: Red Hat - Remove Microsoft Repository
     file:
       path: /etc/yum.repos.d/microsoft.repo
       state: absent
 
-  - name: Remove PowerShell
+  - name: Red Hat - Remove PowerShell
     yum:
       update_cache: true
       name: "{{ powershell_redhat_package_name }}"

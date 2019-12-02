@@ -2,27 +2,34 @@
 dependency:
   name: galaxy
 driver:
-  name: docker
+  name: delegated
+  hostname: 10.1.1.1
+  username: jz@vcenter.internal.zollo.lab
+  password: password
+  validate_certs: false
+  datacenter: "DC1"
+  folder: "/Path/To/VM"
+  vm_username: "guestOSun"
+  vm_password: password for guest os
+  connection: winrm
+  port: 5986
+  winrm_transport: ntlm
+  winrm_server_cert_validation: ignore
 lint:
   name: yamllint
-  options:
-    config-file: molecule/default/yaml-lint.yml
 platforms:
   - name: instance
-    image: "geerlingguy/docker-${MOLECULE_DISTRO:-centos7}-ansible:latest"
-    command: ${MOLECULE_DOCKER_COMMAND:-""}
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    privileged: true
-    pre_build_image: true
+    template: ci-win2016
+    snapshot_src: baseline
+    memory_mb: 4096
+    cpus: 2
+    network: VN-NSX-V10
+    datastore: vSAN
 provisioner:
   name: ansible
   lint:
     name: ansible-lint
-  playbooks:
-    converge: ${MOLECULE_PLAYBOOK:-playbook.yml}
-scenario:
-  name: default
+  log: true
 verifier:
   name: testinfra
   lint:

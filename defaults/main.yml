@@ -1,9 +1,10 @@
 ---
 powershell_state: present
+powershell_version_major: 6
 powershell_version: latest
 powershell_modules: []
-powershell_modules_scope: AllUsers
 
+powershell_windows_modules_scope: AllUsers
 powershell_windows_artifact_id: win
 powershell_windows_artifact_arch: x64
 powershell_windows_artifact_ext: .msi
@@ -11,5 +12,9 @@ powershell_windows_enable_context_menu: false
 powershell_windows_enable_psremoting: false
 powershell_windows_enable_register_manifest: false
 
-powershell_debian_package_name: powershell
+powershell_redhat_modules_scope: AllUsers
+powershell_redhat_update_ca_trust: false
 powershell_redhat_package_name: powershell
+
+powershell_debian_package_name: powershell
+powershell_debian_modules_scope: AllUsers

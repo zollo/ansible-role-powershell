@@ -25,7 +25,11 @@ The state of PowerShell Core, present (default) will install the specified versi
 
     powershell_version: latest
 
-The version of PowerShell Core to install (example `6.2.3`), `latest` will find the newest release.
+The specific version of PowerShell Core to install (example `6.2.3`), `latest` will find the newest release. Must match up with the value set in `powershell_version_major`.
+
+    powershell_version_major: 6
+
+The major version of PowerShell Core to install (currently, only `6` and `7` are valid values).
 
     powershell_modules: []
 
@@ -35,21 +39,41 @@ List containing PowerShell modules to install from the PowerShell Gallery.
 
 The package name for Debian based installations, `powershell-preview` will install a prerelease version.
 
+    powershell_debian_modules_scope: AllUsers
+
+The installation scope of the modules defined in `powershell_modules`, specific to Debian based installations.
+
     powershell_redhat_package_name: powershell
 
 The package name for Red Hat based installations, `powershell-preview` will install a prerelease version.
 
+    powershell_redhat_modules_scope: AllUsers
+
+The installation scope of the modules defined in `powershell_modules`, specific to RedHat based installations.
+
+    powershell_redhat_update_ca_trust: false
+
+Enables a potential workaround for issues related to Microsoft's SSL Certificate for packages.microsoft.com.
+
+    powershell_windows_modules_scope: AllUsers
+
+The installation scope of the modules defined in `powershell_modules`, specific to Windows based installations.
+
     powershell_windows_enable_context_menu: false
 
-Windows Only - This property controls the option for adding the Open PowerShell item to the context menu in Windows Explorer.
+Controls the option for adding the Open PowerShell item to the context menu in Windows Explorer.
 
     powershell_windows_enable_psremoting: false
 
-Windows Only - This property controls the option for enabling PowerShell remoting during installation.
+Controls the option for enabling PowerShell remoting during installation.
 
     powershell_windows_enable_register_manifest: false
 
-Windows Only - This property controls the option for registering the Windows Event Logging manifest.
+Controls the option for registering the Windows Event Logging manifest.
+
+    powershell_windows_artifact_arch: x64
+
+The processor architecture for Windows based installations, valid values are `x64` (64-bit) or `x86` (32-bit).
 
 Dependencies
 ------------

@@ -2,35 +2,53 @@
 dependency:
   name: galaxy
 driver:
-  name: delegated
-  hostname: 10.1.1.1
-  username: jz@vcenter.internal.zollo.lab
-  password: password
-  validate_certs: false
-  datacenter: "DC1"
-  folder: "/Path/To/VM"
-  vm_username: "guestOSun"
-  vm_password: password for guest os
-  connection: winrm
-  port: 5986
-  winrm_transport: ntlm
-  winrm_server_cert_validation: ignore
+  name: docker
 lint:
   name: yamllint
+  options:
+    config-file: molecule/default/yaml-lint.yml
 platforms:
   - name: instance
-    template: ci-win2016
-    snapshot_src: baseline
-    memory_mb: 4096
-    cpus: 2
-    network: VN-NSX-V10
-    datastore: vSAN
+    image: "zollo/ci-${MOLECULE_DISTRO}:latest"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /var/lib/docker
+    privileged: true
+    pre_build_image: true
 provisioner:
   name: ansible
   lint:
     name: ansible-lint
   log: true
+  playbooks:
+    converge: ${MOLECULE_PLAYBOOK}
 verifier:
   name: testinfra
   lint:
     name: flake8
+
+# dependency:
+#   name: galaxy
+# driver:
+#   name: delegated
+#   hostname: 10.1.1.1
+#   username: jz@vcenter.internal.zollo.lab
+#   password: password
+#   validate_certs: false
+#   datacenter: "DC1"
+#   folder: "/Path/To/VM"
+#   vm_username: "guestOSun"
+#   vm_password: password for guest os
+#   connection: winrm
+#   port: 5986
+#   winrm_transport: ntlm
+#   winrm_server_cert_validation: ignore
+# platforms:
+  # - name: instance
+  #   template: ci-win2016
+  #   snapshot_src: baseline
+  #   memory_mb: 4096
+  #   cpus: 2
+  #   network: VN-NSX-V10
+  #   datastore: vSAN

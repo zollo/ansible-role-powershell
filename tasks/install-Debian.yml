@@ -7,7 +7,7 @@
     - name: Ubuntu - Download & Install GPG Key
       apt:
         deb: https://packages.microsoft.com/config/ubuntu/{{ ansible_distribution_major_version }}.04/packages-microsoft-prod.deb
-        state: present 
+        state: present
 
     - name: Debian - Download & Install PowerShell
       apt:
@@ -32,7 +32,7 @@
     - name: Debian - Download & Install GPG Key
       apt:
         deb: https://packages.microsoft.com/config/ubuntu/{{ ansible_distribution_major_version }}.04/packages-microsoft-prod.deb
-        state: absent 
+        state: absent
       when: ansible_distribution == "Ubuntu"
 
     - name: Debian - Download & Install PowerShell

@@ -1,6 +1,8 @@
 Ansible Role: PowerShell
 =========
 
+[![Build Status](https://ci.zollo.net/buildStatus/icon?job=github-joezollo%2Fansible-role-powershell%2Fmaster)](https://ci.zollo.net/job/github-joezollo/job/ansible-role-powershell/job/master/)
+
 Manages PowerShell 6.x/7.x on Windows or Linux. PowerShell is a task-based command-line shell and scripting language built on .NET. PowerShell helps system administrators and power-users rapidly automate tasks that manage operating systems (Linux, macOS, and Windows) and processes.
 
 Requirements

@@ -70,8 +70,8 @@
       product_id: pscore
       arguments:
         - "ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL={{ (powershell_windows_enable_context_menu == true) | ternary('1','0') }}"
-        - "ENABLE_PSREMOTING={{ (powershell_windows_enable_psremoting == true) | ternary('1','0') }}"
-        - "REGISTER_MANIFEST={{ (powershell_windows_enable_register_manifest == true) | ternary('1','0') }}"
+        - "ENABLE_PSREMOTING={{ (powershell_windows_enable_psremoting) | ternary('1','0') }}"
+        - "REGISTER_MANIFEST={{ (powershell_windows_enable_register_manifest) | ternary('1','0') }}"
       path: C:\Windows\Temp\ps.msi
 
   - name: Windows - Install Modules

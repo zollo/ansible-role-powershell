@@ -2,7 +2,7 @@
 - block:
   - name: Red Hat - Update CA Trust
     command: update-ca-trust check
-    when: powershell_rhel_update_ca_trust == true
+    when: powershell_rhel_update_ca_trust
 
   - name: Red Hat - Add Microsoft Repository
     template:

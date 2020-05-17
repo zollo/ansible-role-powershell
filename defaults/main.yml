@@ -1,6 +1,6 @@
 ---
 powershell_state: present
-powershell_version_major: 6
+powershell_version_major: 7
 powershell_version: latest
 powershell_modules: []
 

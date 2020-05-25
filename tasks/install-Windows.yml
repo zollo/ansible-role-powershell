@@ -10,7 +10,6 @@
         url: https://api.github.com/repos/powershell/powershell/releases/latest
         return_content: true
       register: latest_release
-      delegate_to: localhost
 
     - name: Windows - Build Regex Query
       set_fact:
@@ -27,6 +26,7 @@
       when: item.name is regex(powershell_artifact_search)
 
     when: powershell_version == 'latest'
+    delegate_to: localhost
 
   - name: Windows - Search for Specific Artifact
     block:

@@ -1,89 +1,90 @@
 ---
-- name: Windows - Install PowerShell
+- name: Windows | Ensure PowerShell is Present
   block:
+    - name: Windows - Search for Latest Artifact
+      block:
+        - name: Windows - Get Latest PowerShell Release
+          uri:
+            url: https://api.github.com/repos/powershell/powershell/releases/latest
+            return_content: true
+          register: latest_release
 
-  - name: Windows - Search for Latest Artifact
-    block:
+        - name: Windows - Build Regex Query
+          set_fact:
+            powershell_artifact_search: >-
+              ({{ powershell_windows_artifact_id + '-' +
+                  powershell_windows_artifact_arch +
+                  powershell_windows_artifact_ext }})+$
 
-    - name: Windows - Get Latest PowerShell Release
-      uri:
-        url: https://api.github.com/repos/powershell/powershell/releases/latest
-        return_content: true
-      register: latest_release
+        - name: Windows - Debug - Print Regex Query
+          debug:
+            msg: "Query for {{ powershell_artifact_search }}"
 
-    - name: Windows - Build Regex Query
-      set_fact:
-        powershell_artifact_search: "({{ powershell_windows_artifact_id + '-' + powershell_windows_artifact_arch + powershell_windows_artifact_ext }})+$"
-
-    - name: Windows - Debug - Print Regex Query
-      debug:
-        msg: "Query for {{ powershell_artifact_search }}"
-
-    - name: Windows - Search for the Artifact
-      set_fact:
-        powershell_artifact_url: "{{ item.browser_download_url }}"
-      loop: "{{ latest_release.json.assets }}"
-      when: item.name is regex(powershell_artifact_search)
-
-    when: powershell_version == 'latest'
-    delegate_to: localhost
-
-  - name: Windows - Search for Specific Artifact
-    block:
-
-    - name: Windows - Query for List of PowerShell Releases
-      uri:
-        url: https://api.github.com/repos/powershell/powershell/releases
-        return_content: true
-      register: releases
+        - name: Windows - Search for the Artifact
+          set_fact:
+            powershell_artifact_url: "{{ item.browser_download_url }}"
+          loop: "{{ latest_release.json.assets }}"
+          when: item.name is regex(powershell_artifact_search)
+      when: powershell_version == 'latest'
       delegate_to: localhost
 
-    - name: Windows - Build Regex Query
-      set_fact:
-        powershell_artifact_search: "({{ powershell_artifact_windows_id + '-' + powershell_artifact_windows_arch + powershell_artifact_windows_ext }})+$"
+    - name: Windows - Search for Specific Artifact
+      block:
+        - name: Windows - Query for List of PowerShell Releases
+          uri:
+            url: https://api.github.com/repos/powershell/powershell/releases
+            return_content: true
+          register: releases
+          delegate_to: localhost
 
-    - name: Windows - Debug - Print Regex Query
-      debug:
-        msg: "Query for {{ powershell_artifact_search }}"
+        - name: Windows - Build Regex Query
+          set_fact:
+            powershell_artifact_search: "({{ powershell_artifact_windows_id + '-' + powershell_artifact_windows_arch + powershell_artifact_windows_ext }})+$"
 
-    - name: Windows - Search for the Artifact
-      set_fact:
-        powershell_artifact_url: "{{ item.browser_download_url }}"
-      loop: "{{ latest_release.json.assets }}"
-      when: item.name is regex(powershell_artifact_search)
+        - name: Windows - Debug - Print Regex Query
+          debug:
+            msg: "Query for {{ powershell_artifact_search }}"
 
-    when: powershell_version != 'latest'
+        - name: Windows - Search for the Artifact
+          set_fact:
+            powershell_artifact_url: "{{ item.browser_download_url }}"
+          loop: "{{ latest_release.json.assets }}"
+          when: item.name is regex(powershell_artifact_search)
+      when: powershell_version != 'latest'
 
-  - name: Windows - Debug - Print Download URL
-    debug:
-      msg: "Downloading {{ powershell_artifact_url }}"
+    - name: Windows - Debug - Print Download URL
+      debug: msg="Downloading {{ powershell_artifact_url }}"
 
-  - name: Windows - Download PowerShell
-    win_get_url:
-      url: "{{ powershell_artifact_url }}"
-      dest: C:\Windows\Temp\ps.msi
-      follow_redirects: all
+    - name: Windows - Download PowerShell
+      win_get_url:
+        url: "{{ powershell_artifact_url }}"
+        dest: C:\Windows\Temp\ps.msi
+        follow_redirects: all
 
-  - name: Windows - Install PowerShell
-    win_package:
-      state: present
-      product_id: pscore
-      arguments:
-        - "ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL={{ (powershell_windows_enable_context_menu) | ternary('1','0') }}"
-        - "ENABLE_PSREMOTING={{ (powershell_windows_enable_psremoting) | ternary('1','0') }}"
-        - "REGISTER_MANIFEST={{ (powershell_windows_enable_register_manifest) | ternary('1','0') }}"
-      path: C:\Windows\Temp\ps.msi
+    - name: Windows - Install PowerShell
+      win_package:
+        state: present
+        product_id: pscore
+        path: C:\Windows\Temp\ps.msi
+        arguments:
+          - "ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=\
+          {{ (powershell_windows_enable_context_menu) | ternary('1','0') }}"
+          - "ENABLE_PSREMOTING=\
+            {{ (powershell_windows_enable_psremoting) | ternary('1','0') }}"
+          - "REGISTER_MANIFEST=\
+            {{ (powershell_windows_enable_register_manifest) | ternary('1','0') }}"
 
-  - name: Windows - Install Modules
-    win_command: pwsh -
-    args:
-      chdir: '%PROGRAMFILES%\PowerShell\{{ powershell_version_major }}'
-      stdin: "if(-not (Get-Module -ListAvailable -Name {{ item }})) { Install-Module -Name {{ item }} -Scope {{ powershell_windows_modules_scope }} -Force }"
-    loop: "{{ powershell_modules }}"
-
+    - name: Windows - Ensure Modules Are Installed
+      win_command: pwsh -
+      args:
+        chdir: '%PROGRAMFILES%\PowerShell\{{ powershell_version_major }}'
+        stdin: >-
+          if(-not (Get-Module -ListAvailable -Name {{ item }}))
+          { Install-Module -Name {{ item }} -Scope {{ powershell_windows_modules_scope }} -Force }
+      loop: "{{ powershell_modules }}"
   when: powershell_state == 'present'
 
-- name: Remove PowerShell
+- name: Windows | Ensure PowerShell is Absent
   win_package:
     state: absent
     product_id: pscore

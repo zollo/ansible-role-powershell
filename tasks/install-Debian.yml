@@ -1,17 +1,18 @@
 ---
-- name: Ubuntu
+- name: Debian | Ensure PowerShell is Present
   block:
-
-  - name: Debian - Install PowerShell
-    block:
     - name: Ubuntu - Download & Install GPG Key
       apt:
-        deb: https://packages.microsoft.com/config/ubuntu/{{ ansible_distribution_major_version }}.04/packages-microsoft-prod.deb
+        deb: "https://packages.microsoft.com/config/ubuntu/\
+          {{ ansible_distribution_major_version }}.04/packages-microsoft-prod.deb"
         state: present
 
     - name: Debian - Download & Install PowerShell
       apt:
-        name: "{{ (powershell_version == 'latest') | ternary(powershell_debian_package_name, (powershell_debian_package_name + '=' + powershell_version)) }}"
+        name: >-
+          {{ (powershell_version == 'latest') |
+             ternary(powershell_debian_package_name,
+             (powershell_debian_package_name + '=' + powershell_version)) }}
         autoclean: true
         state: present
         update_cache: true
@@ -24,14 +25,14 @@
       args:
         executable: /usr/bin/pwsh
       loop: "{{ powershell_modules }}"
+  when: powershell_state == 'present'
 
-    when: powershell_state == 'present'
-
-  - name: Debian - Remove PowerShell
-    block:
+- name: Debian | Ensure PowerShell is Absent
+  block:
     - name: Debian - Download & Install GPG Key
       apt:
-        deb: https://packages.microsoft.com/config/ubuntu/{{ ansible_distribution_major_version }}.04/packages-microsoft-prod.deb
+        deb: "https://packages.microsoft.com/config/ubuntu/\
+          {{ ansible_distribution_major_version }}.04/packages-microsoft-prod.deb"
         state: absent
       when: ansible_distribution == "Ubuntu"
 
@@ -41,7 +42,5 @@
         autoclean: true
         state: absent
         update_cache: true
-    when: powershell_state == 'absent'
+  when: powershell_state == 'absent'
 
-  become: true
-  when: ansible_distribution == 'Ubuntu'

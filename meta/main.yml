@@ -2,14 +2,14 @@
 galaxy_info:
   role_name: powershell
   author: Joe Zollo <joe@zollo.net>
-  description: Manages PowerShell Installation
+  description: Manages PowerShell
   license: BSD
   min_ansible_version: 2.8
   platforms:
     - name: EL
       versions:
-        - 6
         - 7
+        - 8
     - name: Ubuntu
       versions:
         - xenial

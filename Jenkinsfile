@@ -5,7 +5,7 @@
 pipeline {
     agent {
         docker {
-            image 'quay.io/ansible/molecule:3.0.4'
+            image 'zollo/ansible-ci:latest'
             args '--network host -u root:root -v $HOME/.cache:/root/.cache'
         }
     }
@@ -27,7 +27,7 @@ pipeline {
                         extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'ansible-ci-win']],
                         submoduleCfg: [],
                         userRemoteConfigs: [[credentialsId: 'github-ssh-joezollo',
-                            url: 'git@github.com:joezollo/ansible-ci-windows.git']
+                            url: 'git@github.com:zollo/ansible-ci-windows.git']
                         ]
                     ]
                 )
@@ -35,28 +35,9 @@ pipeline {
             }
         }
 
-        stage ('Display Debug Info') {
-            steps {
-                sh '''
-                    ansible --version
-                    molecule --version
-                '''
-            }
-        }
-
-        stage ('Install Prerequisites') {
-            steps {
-                sh "apk add --update --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ sshpass"
-                sh "pip install -r requirements.txt"
-            }
-        }
-
         stage ('Molecule Test') {
             steps {
-                sh "rm -rf drivers/"
-                sh "mv -fv ansible-ci-win/drivers/ ./"
-                sh "rm -rf ansible-ci-win/"
-                sh "molecule --debug test --all"
+                sh "mol test --all"
             }
         }
     }
